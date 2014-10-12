@@ -59,18 +59,17 @@ static const uuid_le UltraDiagChannelProtocolGuid =
 #define ULTRA_DIAG_CHANNEL_PROTOCOL_VERSIONID 2
 
 #define ULTRA_DIAG_CHANNEL_OK_CLIENT(pChannel, logCtx)			\
-	(ULTRA_check_channel_client(pChannel,				\
+	(spar_check_channel_client(pChannel,				\
 				    UltraDiagChannelProtocolGuid,	\
 				    "diag",				\
 				    sizeof(ULTRA_DIAG_CHANNEL_PROTOCOL), \
 				    ULTRA_DIAG_CHANNEL_PROTOCOL_VERSIONID, \
-				    ULTRA_DIAG_CHANNEL_PROTOCOL_SIGNATURE, \
-				    __FILE__, __LINE__, logCtx))
-#define ULTRA_DIAG_CHANNEL_OK_SERVER(actualBytes, logCtx)		\
-	(ULTRA_check_channel_server(UltraDiagChannelProtocolGuid,	\
-				    "diag",				\
-				    sizeof(ULTRA_DIAG_CHANNEL_PROTOCOL), \
-				    actualBytes, __FILE__, __LINE__, logCtx))
+				    ULTRA_DIAG_CHANNEL_PROTOCOL_SIGNATURE))
+#define ULTRA_DIAG_CHANNEL_OK_SERVER(actualBytes)		\
+	(spar_check_channel_server(UltraDiagChannelProtocolGuid,	\
+				   "diag",				\
+				   sizeof(ULTRA_DIAG_CHANNEL_PROTOCOL), \
+				    actualBytes))
 #define MAX_MODULE_NAME_SIZE 128	/* Maximum length of module name... */
 #define MAX_ADDITIONAL_INFO_SIZE 256	/* Maximum length of any additional info
 					 * accompanying event... */
