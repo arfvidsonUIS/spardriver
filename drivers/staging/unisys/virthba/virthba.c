@@ -101,7 +101,6 @@ static DEF_SCSI_QCMD(virthba_queue_command)
 #define virthba_queue_command virthba_queue_command_lck
 #endif
 
-
 static int virthba_slave_alloc(struct scsi_device *scsidev);
 static int virthba_slave_configure(struct scsi_device *scsidev);
 static void virthba_slave_destroy(struct scsi_device *scsidev);
@@ -166,6 +165,7 @@ struct virtdisk_info {
 	atomic_t error_count;
 	struct virtdisk_info *next;
 };
+
 /* Each Scsi_Host has a host_data area that contains this struct. */
 struct virthba_info {
 	struct Scsi_Host *scsihost;
@@ -420,7 +420,9 @@ static irqreturn_t
 virthba_ISR(int irq, void *dev_id)
 {
 	struct virthba_info *virthbainfo = (struct virthba_info *) dev_id;
+
 	CHANNEL_HEADER __iomem *pChannelHeader;
+
 	SIGNAL_QUEUE_HEADER __iomem *pqhdr;
 	u64 mask;
 	unsigned long long rc1;
@@ -989,7 +991,6 @@ virthba_queue_command_lck(struct scsi_cmnd *scsicmd,
 		sgl = scsi_sglist(scsicmd);
 
 		for_each_sg(sgl, sg, scsi_sg_count(scsicmd), i) {
-
 			cmdrsp->scsi.gpi_list[i].address = sg_phys(sg);
 			cmdrsp->scsi.gpi_list[i].length = sg->length;
 			if ((i != 0) && (sg->offset != 0))
@@ -1207,7 +1208,6 @@ do_scsi_nolinuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 			bufind += sg[i].length;
 		}
 	} else {
-
 		vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 		for ( ; vdisk->next; vdisk = vdisk->next) {
 			if ((scsidev->channel != vdisk->channel)
@@ -1322,7 +1322,6 @@ drain_queue(struct virthba_info *virthbainfo, struct chaninfo *dc,
 		/* cmdrsp is now available for reuse */
 	}
 }
-
 
 /* main function for the thread that waits for scsi commands to arrive
  * in a specified queue
@@ -1657,7 +1656,6 @@ virthba_mod_init(void)
 		POSTCODE_LINUX_3(VHBA_CREATE_FAILURE_PC, error,
 				 POSTCODE_SEVERITY_ERR);
 	} else {
-
 		/* create the debugfs directories and entries */
 		virthba_debugfs_dir = debugfs_create_dir("virthba", NULL);
 		debugfs_create_file("info", S_IRUSR, virthba_debugfs_dir,
@@ -1748,7 +1746,6 @@ virthba_mod_exit(void)
 
 	debugfs_remove_recursive(virthba_debugfs_dir);
 	LOGINF("Leaving virthba_mod_exit\n");
-
 }
 
 /* specify function to be run at module insertion time */
