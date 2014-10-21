@@ -110,9 +110,10 @@ static int virthba_serverdown(struct virtpci_dev *virtpcidev, u32 state);
 static void doDiskAddRemove(struct work_struct *work);
 static void virthba_serverdown_complete(struct work_struct *work);
 static ssize_t info_debugfs_read(struct file *file, char __user *buf,
-			size_t len, loff_t *offset);
+				 size_t len, loff_t *offset);
 static ssize_t enable_ints_write(struct file *file,
-			const char __user *buffer, size_t count, loff_t *ppos);
+				 const char __user *buffer, size_t count,
+				 loff_t *ppos);
 
 /*****************************************************/
 /* Globals                                           */
@@ -263,7 +264,7 @@ add_scsipending_entry(struct virthba_info *vhbainfo, char cmdtype, void *new)
 		insert_location = (insert_location + 1) % MAX_PENDING_REQUESTS;
 		if (insert_location == (int)vhbainfo->nextinsert) {
 			LOGERR("Queue should be full. insert_location<<%d>>  Unable to find open slot for pending commands.\n",
-			     insert_location);
+			       insert_location);
 			spin_unlock_irqrestore(&vhbainfo->privlock, flags);
 			return -1;
 		}
@@ -301,13 +302,13 @@ del_scsipending_entry(struct virthba_info *vhbainfo, uintptr_t del)
 
 	if (del >= MAX_PENDING_REQUESTS) {
 		LOGERR("Invalid queue position <<%lu>> given to delete. MAX_PENDING_REQUESTS <<%d>>\n",
-		     (unsigned long)del, MAX_PENDING_REQUESTS);
+		       (unsigned long)del, MAX_PENDING_REQUESTS);
 	} else {
 		spin_lock_irqsave(&vhbainfo->privlock, flags);
 
 		if (vhbainfo->pending[del].sent == NULL)
 			LOGERR("Deleting already cleared queue entry at <<%lu>>.\n",
-			     (unsigned long)del);
+			       (unsigned long)del);
 
 		sent = vhbainfo->pending[del].sent;
 
@@ -357,8 +358,8 @@ SendDiskAddRemove(struct diskaddremove *dar)
 				    dar->lun);
 		if (error)
 			LOGERR("Failed scsi_add_device: host_no=%d[chan=%d:id=%d:lun=%d]\n",
-			     dar->shost->host_no, dar->channel, dar->id,
-			     dar->lun);
+			       dar->shost->host_no, dar->channel, dar->id,
+			       dar->lun);
 	} else
 		LOGERR("Failed scsi_device_lookup:[chan=%d:id=%d:lun=%d]\n",
 		       dar->channel, dar->id, dar->lun);
@@ -408,8 +409,8 @@ process_disk_notify(struct Scsi_Host *shost, struct uiscmdrsp *cmdrsp)
 		QUEUE_DISKADDREMOVE(dar);
 	} else {
 		LOGERR("kmalloc failed for dar. host_no=%d[chan=%d:id=%d:lun=%d]\n",
-		     shost->host_no, cmdrsp->disknotify.channel,
-		     cmdrsp->disknotify.id, cmdrsp->disknotify.lun);
+		       shost->host_no, cmdrsp->disknotify.channel,
+		       cmdrsp->disknotify.id, cmdrsp->disknotify.lun);
 	}
 }
 
@@ -504,11 +505,11 @@ virthba_probe(struct virtpci_dev *virtpcidev, const struct pci_device_id *id)
 	 * the max-channel value.
 	 */
 	LOGINF("virtpcidev->scsi.max.max_channel=%u, max_id=%u, max_lun=%u, cmd_per_lun=%u, max_io_size=%u\n",
-	     (unsigned)virtpcidev->scsi.max.max_channel - 1,
-	     (unsigned)virtpcidev->scsi.max.max_id,
-	     (unsigned)virtpcidev->scsi.max.max_lun,
-	     (unsigned)virtpcidev->scsi.max.cmd_per_lun,
-	     (unsigned)virtpcidev->scsi.max.max_io_size);
+	       (unsigned)virtpcidev->scsi.max.max_channel - 1,
+	       (unsigned)virtpcidev->scsi.max.max_id,
+	       (unsigned)virtpcidev->scsi.max.max_lun,
+	       (unsigned)virtpcidev->scsi.max.cmd_per_lun,
+	       (unsigned)virtpcidev->scsi.max.max_io_size);
 	scsihost->max_channel = (unsigned)virtpcidev->scsi.max.max_channel;
 	scsihost->max_id = (unsigned)virtpcidev->scsi.max.max_id;
 	scsihost->max_lun = (unsigned)virtpcidev->scsi.max.max_lun;
@@ -520,12 +521,12 @@ virthba_probe(struct virtpci_dev *virtpcidev, const struct pci_device_id *id)
 	if (scsihost->sg_tablesize > MAX_PHYS_INFO)
 		scsihost->sg_tablesize = MAX_PHYS_INFO;
 	LOGINF("scsihost->max_channel=%u, max_id=%u, max_lun=%llu, cmd_per_lun=%u, max_sectors=%hu, sg_tablesize=%hu\n",
-	     scsihost->max_channel, scsihost->max_id, scsihost->max_lun,
-	     scsihost->cmd_per_lun, scsihost->max_sectors,
-	     scsihost->sg_tablesize);
+	       scsihost->max_channel, scsihost->max_id, scsihost->max_lun,
+	       scsihost->cmd_per_lun, scsihost->max_sectors,
+	       scsihost->sg_tablesize);
 	LOGINF("scsihost->can_queue=%u, scsihost->cmd_per_lun=%u, max_sectors=%hu, sg_tablesize=%hu\n",
-	     scsihost->can_queue, scsihost->cmd_per_lun, scsihost->max_sectors,
-	     scsihost->sg_tablesize);
+	       scsihost->can_queue, scsihost->cmd_per_lun,
+	       scsihost->max_sectors, scsihost->sg_tablesize);
 
 	DBGINF("calling scsi_add_host\n");
 
@@ -995,17 +996,17 @@ virthba_queue_command_lck(struct scsi_cmnd *scsicmd,
 			cmdrsp->scsi.gpi_list[i].length = sg->length;
 			if ((i != 0) && (sg->offset != 0))
 				LOGINF("Offset on a sg_entry other than zero =<<%d>>.\n",
-				     sg->offset);
+				       sg->offset);
 		}
 
 		if (sg_failed) {
 			LOGERR("Start sg_list dump (entries %d, bufflen %d)...\n",
-			     scsi_sg_count(scsicmd), cmdrsp->scsi.bufflen);
+			       scsi_sg_count(scsicmd), cmdrsp->scsi.bufflen);
 			for_each_sg(sgl, sg, scsi_sg_count(scsicmd), i) {
 				LOGERR("   Entry(%d): page->[0x%p], phys->[0x%Lx], off(%d), len(%d)\n",
-				     i, sg_page(sg),
-				     (unsigned long long)sg_phys(sg),
-				     sg->offset, sg->length);
+				       i, sg_page(sg),
+				       (unsigned long long)sg_phys(sg),
+				       sg->offset, sg->length);
 			}
 			LOGERR("Done sg_list dump.\n");
 			/* BUG(); ***** For now, let it fail in uissd
@@ -1149,8 +1150,8 @@ do_scsi_linuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 			if (atomic_read(&vdisk->error_count) ==
 			    VIRTHBA_ERROR_COUNT) {
 				LOGERR("Throtling SCSICMD errors disk <%d:%d:%d:%llu>\n",
-				     scsidev->host->host_no, scsidev->id,
-				     scsidev->channel, scsidev->lun);
+				       scsidev->host->host_no, scsidev->id,
+				       scsidev->channel, scsidev->lun);
 			}
 			atomic_set(&vdisk->ios_threshold, IOS_ERROR_THRESHOLD);
 		}
@@ -1199,7 +1200,7 @@ do_scsi_nolinuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 		sg = scsi_sglist(scsicmd);
 		for (i = 0; i < scsi_sg_count(scsicmd); i++) {
 			DBGVER("copying OUT OF buf into 0x%p %d\n",
-			     sg_page(sg + i), sg[i].length);
+			       sg_page(sg + i), sg[i].length);
 			thispage_orig = kmap_atomic(sg_page(sg + i));
 			thispage = (void *)((unsigned long)thispage_orig |
 					     sg[i].offset);
@@ -1267,7 +1268,7 @@ complete_taskmgmt_command(struct uiscmdrsp *cmdrsp)
 
 static void
 drain_queue(struct virthba_info *virthbainfo, struct chaninfo *dc,
-		struct uiscmdrsp *cmdrsp)
+	    struct uiscmdrsp *cmdrsp)
 {
 	unsigned long flags;
 	int qrslt = 0;
@@ -1295,14 +1296,14 @@ drain_queue(struct virthba_info *virthbainfo, struct chaninfo *dc,
 			 * deletion
 			 */
 			scsicmd = del_scsipending_entry(virthbainfo,
-					(uintptr_t)cmdrsp->scsi.scsicmd);
+				(uintptr_t)cmdrsp->scsi.scsicmd);
 			if (!scsicmd)
 				break;
 			/* complete the orig cmd */
 			complete_scsi_command(cmdrsp, scsicmd);
 		} else if (cmdrsp->cmdtype == CMD_SCSITASKMGMT_TYPE) {
 			if (!del_scsipending_entry(virthbainfo,
-				   (uintptr_t)cmdrsp->scsitaskmgmt.scsicmd))
+				(uintptr_t)cmdrsp->scsitaskmgmt.scsicmd))
 				break;
 			complete_taskmgmt_command(cmdrsp);
 		} else if (cmdrsp->cmdtype == CMD_NOTIFYGUEST_TYPE) {
@@ -1314,7 +1315,7 @@ drain_queue(struct virthba_info *virthbainfo, struct chaninfo *dc,
 			process_disk_notify(shost, cmdrsp);
 		} else if (cmdrsp->cmdtype == CMD_VDISKMGMT_TYPE) {
 			if (!del_scsipending_entry(virthbainfo,
-				   (uintptr_t)cmdrsp->vdiskmgmt.scsicmd))
+				(uintptr_t)cmdrsp->vdiskmgmt.scsicmd))
 				break;
 			complete_vdiskmgmt_command(cmdrsp);
 		} else
@@ -1347,8 +1348,8 @@ process_incoming_rsps(void *v)
 	mask = ULTRA_CHANNEL_ENABLE_INTS;
 	while (1) {
 		wait_event_interruptible_timeout(virthbainfo->rsp_queue,
-			 (atomic_read(&virthbainfo->interrupt_rcvd) == 1),
-					 usecs_to_jiffies(rsltq_wait_usecs));
+			(atomic_read(&virthbainfo->interrupt_rcvd) == 1),
+			usecs_to_jiffies(rsltq_wait_usecs));
 		atomic_set(&virthbainfo->interrupt_rcvd, 0);
 		/* drain queue */
 		drain_queue(virthbainfo, dc, cmdrsp);
@@ -1368,7 +1369,7 @@ process_incoming_rsps(void *v)
 /*****************************************************/
 
 static ssize_t info_debugfs_read(struct file *file,
-			char __user *buf, size_t len, loff_t *offset)
+				 char __user *buf, size_t len, loff_t *offset)
 {
 	ssize_t bytes_read = 0;
 	int str_pos = 0;
@@ -1420,7 +1421,8 @@ static ssize_t info_debugfs_read(struct file *file,
 }
 
 static ssize_t enable_ints_write(struct file *file,
-			const char __user *buffer, size_t count, loff_t *ppos)
+				 const char __user *buffer,
+				 size_t count, loff_t *ppos)
 {
 	char buf[4];
 	int i, new_value;
@@ -1563,7 +1565,7 @@ virthba_serverdown_complete(struct work_struct *work)
 		default:
 			if (pendingdel->sent != NULL)
 				LOGERR("Unknown command type: 0x%x.  Only freeing list structure.\n",
-				     pendingdel->cmdtype);
+				       pendingdel->cmdtype);
 		}
 		pendingdel->cmdtype = 0;
 		pendingdel->sent = NULL;
@@ -1659,12 +1661,12 @@ virthba_mod_init(void)
 		/* create the debugfs directories and entries */
 		virthba_debugfs_dir = debugfs_create_dir("virthba", NULL);
 		debugfs_create_file("info", S_IRUSR, virthba_debugfs_dir,
-				NULL, &debugfs_info_fops);
+				    NULL, &debugfs_info_fops);
 		debugfs_create_u32("rqwait_usecs", S_IRUSR | S_IWUSR,
-				virthba_debugfs_dir, &rsltq_wait_usecs);
+				   virthba_debugfs_dir, &rsltq_wait_usecs);
 		debugfs_create_file("enable_ints", S_IWUSR,
-				virthba_debugfs_dir, NULL,
-				&debugfs_enable_ints_fops);
+				    virthba_debugfs_dir, NULL,
+				    &debugfs_enable_ints_fops);
 		/* Initialize DARWorkQ */
 		INIT_WORK(&DARWorkQ, doDiskAddRemove);
 		spin_lock_init(&DARWorkQLock);
