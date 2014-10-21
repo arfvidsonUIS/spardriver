@@ -433,10 +433,10 @@ virthba_ISR(int irq, void *dev_id)
 	virthbainfo->interrupts_rcvd++;
 	pChannelHeader = virthbainfo->chinfo.queueinfo->chan;
 	if (((readq(&pChannelHeader->Features)
-	      & ULTRA_IO_IOVM_IS_OK_WITH_DRIVER_DISABLING_INTS) != 0)
-	    && ((readq(&pChannelHeader->Features) &
-		 ULTRA_IO_DRIVER_DISABLES_INTS) !=
-		0)) {
+	      &ULTRA_IO_IOVM_IS_OK_WITH_DRIVER_DISABLING_INTS) != 0) &
+	    ((readq(&pChannelHeader->Features) &
+	      ULTRA_IO_DRIVER_DISABLES_INTS) !=
+	     0)) {
 		virthbainfo->interrupts_disabled++;
 		mask = ~ULTRA_CHANNEL_ENABLE_INTS;
 		rc1 = uisqueue_interlocked_and(virthbainfo->flags_addr, mask);
@@ -810,9 +810,9 @@ virthba_abort_handler(struct scsi_cmnd *scsicmd)
 	scsidev = scsicmd->device;
 	for (vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 	     vdisk->next; vdisk = vdisk->next) {
-		if ((scsidev->channel == vdisk->channel)
-		    && (scsidev->id == vdisk->id)
-		    && (scsidev->lun == vdisk->lun)) {
+		if ((scsidev->channel == vdisk->channel) &&
+		    (scsidev->id == vdisk->id) &&
+		    (scsidev->lun == vdisk->lun)) {
 			if (atomic_read(&vdisk->error_count) <
 			    VIRTHBA_ERROR_COUNT) {
 				atomic_inc(&vdisk->error_count);
@@ -836,9 +836,9 @@ virthba_bus_reset_handler(struct scsi_cmnd *scsicmd)
 	scsidev = scsicmd->device;
 	for (vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 	     vdisk->next; vdisk = vdisk->next) {
-		if ((scsidev->channel == vdisk->channel)
-		    && (scsidev->id == vdisk->id)
-		    && (scsidev->lun == vdisk->lun)) {
+		if ((scsidev->channel == vdisk->channel) &&
+		    (scsidev->id == vdisk->id) &&
+		    (scsidev->lun == vdisk->lun)) {
 			if (atomic_read(&vdisk->error_count) <
 			    VIRTHBA_ERROR_COUNT) {
 				atomic_inc(&vdisk->error_count);
@@ -862,9 +862,9 @@ virthba_device_reset_handler(struct scsi_cmnd *scsicmd)
 	scsidev = scsicmd->device;
 	for (vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 	     vdisk->next; vdisk = vdisk->next) {
-		if ((scsidev->channel == vdisk->channel)
-		    && (scsidev->id == vdisk->id)
-		    && (scsidev->lun == vdisk->lun)) {
+		if ((scsidev->channel == vdisk->channel) &&
+			(scsidev->id == vdisk->id) &&
+			(scsidev->lun == vdisk->lun)) {
 			if (atomic_read(&vdisk->error_count) <
 			    VIRTHBA_ERROR_COUNT) {
 				atomic_inc(&vdisk->error_count);
@@ -1133,9 +1133,9 @@ do_scsi_linuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 	/* Okay see what our error_count is here.... */
 	for (vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 	     vdisk->next; vdisk = vdisk->next) {
-		if ((scsidev->channel != vdisk->channel)
-		    || (scsidev->id != vdisk->id)
-		    || (scsidev->lun != vdisk->lun))
+		if ((scsidev->channel != vdisk->channel) ||
+		    (scsidev->id != vdisk->id) ||
+		    (scsidev->lun != vdisk->lun))
 			continue;
 
 		if (atomic_read(&vdisk->error_count) < VIRTHBA_ERROR_COUNT) {
@@ -1171,8 +1171,8 @@ do_scsi_nolinuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 	struct virtdisk_info *vdisk;
 
 	scsidev = scsicmd->device;
-	if ((cmdrsp->scsi.cmnd[0] == INQUIRY)
-	    && (cmdrsp->scsi.bufflen >= MIN_INQUIRY_RESULT_LEN)) {
+	if ((cmdrsp->scsi.cmnd[0] == INQUIRY) &&
+	    (cmdrsp->scsi.bufflen >= MIN_INQUIRY_RESULT_LEN)) {
 		if (cmdrsp->scsi.no_disk_result == 0)
 			return;
 
@@ -1211,9 +1211,9 @@ do_scsi_nolinuxstat(struct uiscmdrsp *cmdrsp, struct scsi_cmnd *scsicmd)
 	} else {
 		vdisk = &((struct virthba_info *)scsidev->host->hostdata)->head;
 		for ( ; vdisk->next; vdisk = vdisk->next) {
-			if ((scsidev->channel != vdisk->channel)
-			    || (scsidev->id != vdisk->id)
-			    || (scsidev->lun != vdisk->lun))
+			if ((scsidev->channel != vdisk->channel) ||
+				(scsidev->id != vdisk->id) ||
+				(scsidev->lun != vdisk->lun))
 				continue;
 
 			if (atomic_read(&vdisk->ios_threshold) > 0) {
