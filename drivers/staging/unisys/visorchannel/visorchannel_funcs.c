@@ -393,7 +393,7 @@ safe_sig_queue_validate(pSIGNAL_QUEUE_HEADER psafe_sqh,
 		punsafe_sqh->Tail = *ptail;
 
 		ERRDRV("safe_sig_queue_validate: head = 0x%x, tail = 0x%x, MaxSlots = 0x%x",
-		     *phead, *ptail, psafe_sqh->MaxSignalSlots);
+		       *phead, *ptail, psafe_sqh->MaxSignalSlots);
 		return 0;
 	}
 	return 1;
