@@ -34,8 +34,8 @@ struct VISORCHANNEL_Tag {
 	uuid_le guid;
 	ulong size;
 	BOOL needs_lock;
-	spinlock_t insert_lock;
-	spinlock_t remove_lock;
+	spinlock_t insert_lock; /* insert lock for visorchannel queue */
+	spinlock_t remove_lock; /* remove lock for visorchannel queue */
 
 	struct {
 		SIGNAL_QUEUE_HEADER req_queue;
