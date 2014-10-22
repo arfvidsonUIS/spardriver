@@ -89,7 +89,7 @@ visorchannel_create_guts(HOSTADDRESS physaddr, ulong channelBytes,
 	}
 	if (channelBytes == 0)
 		/* we had better be a CLIENT of this channel */
-		channelBytes = (ulong) p->chan_hdr.Size;
+		channelBytes = (ulong)p->chan_hdr.Size;
 	if (uuid_le_cmp(guid, NULL_UUID_LE) == 0)
 		/* we had better be a CLIENT of this channel */
 		guid = p->chan_hdr.Type;
@@ -283,7 +283,7 @@ EXPORT_SYMBOL_GPL(visorchannel_clear);
 void __iomem  *
 visorchannel_get_header(VISORCHANNEL *channel)
 {
-	return (void __iomem *) &(channel->chan_hdr);
+	return (void __iomem *)&channel->chan_hdr;
 }
 EXPORT_SYMBOL_GPL(visorchannel_get_header);
 
@@ -328,7 +328,8 @@ sig_read_header(VISORCHANNEL *channel, u32 queue,
 				 sig_hdr, sizeof(SIGNAL_QUEUE_HEADER)) < 0) {
 		ERRDRV("queue=%d SIG_QUEUE_OFFSET=%d",
 		       queue, (int)SIG_QUEUE_OFFSET(&channel->chan_hdr, queue));
-		ERRDRV("visor_memregion_read of signal queue failed: (status=%d)\n", rc);
+		ERRDRV("visor_memregion_read of signal queue failed: (status=%d)\n",
+		       rc);
 		goto Away;
 	}
 	rc = TRUE;
@@ -513,7 +514,7 @@ visorchannel_signalqueue_slots_avail(VISORCHANNEL *channel, u32 queue)
 		head = head + sig_hdr.MaxSignalSlots;
 	slots_used = (head - tail);
 	slots_avail = sig_hdr.MaxSignals - slots_used;
-	return (int) slots_avail;
+	return (int)slots_avail;
 }
 EXPORT_SYMBOL_GPL(visorchannel_signalqueue_slots_avail);
 
@@ -524,7 +525,7 @@ visorchannel_signalqueue_max_slots(VISORCHANNEL *channel, u32 queue)
 
 	if (!sig_read_header(channel, queue, &sig_hdr))
 		return 0;
-	return (int) sig_hdr.MaxSignals;
+	return (int)sig_hdr.MaxSignals;
 }
 EXPORT_SYMBOL_GPL(visorchannel_signalqueue_max_slots);
 
@@ -532,24 +533,24 @@ static void
 sigqueue_debug(SIGNAL_QUEUE_HEADER *q, int which, struct seq_file *seq)
 {
 	seq_printf(seq, "Signal Queue #%d\n", which);
-	seq_printf(seq, "   VersionId          = %lu\n", (ulong) q->VersionId);
-	seq_printf(seq, "   Type               = %lu\n", (ulong) q->Type);
+	seq_printf(seq, "   VersionId          = %lu\n", (ulong)q->VersionId);
+	seq_printf(seq, "   Type               = %lu\n", (ulong)q->Type);
 	seq_printf(seq, "   oSignalBase        = %llu\n",
-		   (long long) q->oSignalBase);
-	seq_printf(seq, "   SignalSize         = %lu\n", (ulong) q->SignalSize);
+		   (long long)q->oSignalBase);
+	seq_printf(seq, "   SignalSize         = %lu\n", (ulong)q->SignalSize);
 	seq_printf(seq, "   MaxSignalSlots     = %lu\n",
-		   (ulong) q->MaxSignalSlots);
-	seq_printf(seq, "   MaxSignals         = %lu\n", (ulong) q->MaxSignals);
+		   (ulong)q->MaxSignalSlots);
+	seq_printf(seq, "   MaxSignals         = %lu\n", (ulong)q->MaxSignals);
 	seq_printf(seq, "   FeatureFlags       = %-16.16Lx\n",
-		   (long long) q->FeatureFlags);
+		   (long long)q->FeatureFlags);
 	seq_printf(seq, "   NumSignalsSent     = %llu\n",
-		   (long long) q->NumSignalsSent);
+		   (long long)q->NumSignalsSent);
 	seq_printf(seq, "   NumSignalsReceived = %llu\n",
-		   (long long) q->NumSignalsReceived);
+		   (long long)q->NumSignalsReceived);
 	seq_printf(seq, "   NumOverflows       = %llu\n",
-		   (long long) q->NumOverflows);
-	seq_printf(seq, "   Head               = %lu\n", (ulong) q->Head);
-	seq_printf(seq, "   Tail               = %lu\n", (ulong) q->Tail);
+		   (long long)q->NumOverflows);
+	seq_printf(seq, "   Head               = %lu\n", (ulong)q->Head);
+	seq_printf(seq, "   Tail               = %lu\n", (ulong)q->Tail);
 }
 
 void
@@ -587,28 +588,28 @@ visorchannel_debug(VISORCHANNEL *channel, int nQueues,
 		} else
 			return;
 	}
-	nbytes = (ulong) (phdr->Size);
+	nbytes = (ulong)(phdr->Size);
 	seq_printf(seq, "--- Begin channel @0x%-16.16Lx for 0x%lx bytes (region=0x%lx bytes) ---\n",
 		   addr + off, nbytes, nbytes_region);
 	seq_printf(seq, "Type            = %pUL\n", &phdr->Type);
 	seq_printf(seq, "ZoneGuid        = %pUL\n", &phdr->ZoneGuid);
 	seq_printf(seq, "Signature       = 0x%-16.16Lx\n",
-		   (long long) phdr->Signature);
-	seq_printf(seq, "LegacyState     = %lu\n", (ulong) phdr->LegacyState);
-	seq_printf(seq, "SrvState        = %lu\n", (ulong) phdr->SrvState);
-	seq_printf(seq, "CliStateBoot    = %lu\n", (ulong) phdr->CliStateBoot);
-	seq_printf(seq, "CliStateOS      = %lu\n", (ulong) phdr->CliStateOS);
-	seq_printf(seq, "HeaderSize      = %lu\n", (ulong) phdr->HeaderSize);
-	seq_printf(seq, "Size            = %llu\n", (long long) phdr->Size);
+		   (long long)phdr->Signature);
+	seq_printf(seq, "LegacyState     = %lu\n", (ulong)phdr->LegacyState);
+	seq_printf(seq, "SrvState        = %lu\n", (ulong)phdr->SrvState);
+	seq_printf(seq, "CliStateBoot    = %lu\n", (ulong)phdr->CliStateBoot);
+	seq_printf(seq, "CliStateOS      = %lu\n", (ulong)phdr->CliStateOS);
+	seq_printf(seq, "HeaderSize      = %lu\n", (ulong)phdr->HeaderSize);
+	seq_printf(seq, "Size            = %llu\n", (long long)phdr->Size);
 	seq_printf(seq, "Features        = 0x%-16.16llx\n",
-		   (long long) phdr->Features);
+		   (long long)phdr->Features);
 	seq_printf(seq, "PartitionHandle = 0x%-16.16llx\n",
-		   (long long) phdr->PartitionHandle);
+		   (long long)phdr->PartitionHandle);
 	seq_printf(seq, "Handle          = 0x%-16.16llx\n",
-		   (long long) phdr->Handle);
-	seq_printf(seq, "VersionId       = %lu\n", (ulong) phdr->VersionId);
+		   (long long)phdr->Handle);
+	seq_printf(seq, "VersionId       = %lu\n", (ulong)phdr->VersionId);
 	seq_printf(seq, "oChannelSpace   = %llu\n",
-		   (long long) phdr->oChannelSpace);
+		   (long long)phdr->oChannelSpace);
 	if ((phdr->oChannelSpace == 0) || (errcode < 0))
 		;
 	else
