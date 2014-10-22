@@ -584,8 +584,9 @@ visorchannel_debug(VISORCHANNEL *channel, int nQueues,
 		if (off == 0) {
 			phdr = &channel->chan_hdr;
 			seq_puts(seq, "(following data may be stale)\n");
-		} else
+		} else {
 			return;
+		}
 	}
 	nbytes = (ulong)(phdr->Size);
 	seq_printf(seq, "--- Begin channel @0x%-16.16Lx for 0x%lx bytes (region=0x%lx bytes) ---\n",
